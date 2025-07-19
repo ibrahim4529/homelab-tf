@@ -229,3 +229,46 @@ resource "proxmox_virtual_environment_vm" "quickstack" {
         bridge = "vmbr0"
     }
 }
+
+
+resource "proxmox_virtual_environment_vm" "k3s-master" {
+  name = "k3s-master"
+  node_name = var.node_name
+
+  cpu {
+      cores = 2
+  }
+
+  memory {
+      dedicated = 2048
+  }
+
+  disk {
+      datastore_id = "local-lvm"
+      file_id = proxmox_virtual_environment_download_file.ubuntu_cloud_image.id
+      interface = "virtio0"
+      iothread = true
+      discard = "on"
+      size = 40
+  }
+
+  initialization {
+      ip_config {
+          ipv4 {
+              address = "192.168.88.131/24"
+              gateway = var.container_gateway
+          }
+      }
+      user_account {
+          username = "hanif"
+          password = var.container_password
+          keys = var.ssh_keys
+      }
+  }
+
+  network_device {
+      bridge = "vmbr0"
+  }
+}
+
+
